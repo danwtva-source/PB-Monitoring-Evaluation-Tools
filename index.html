@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communities' Choice - Self Reporting Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none; 
+            width: 100%; 
+            background: transparent; 
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #0d9488;
+            cursor: pointer;
+            margin-top: -8px; 
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d9488; 
+        }
+        
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8.4px;
+            cursor: pointer;
+            background: #ccfbf1;
+            border-radius: 1.3px;
+        }
+
+        .print-hide {
+            display: block;
+        }
+
+        @media print {
+            .print-hide { display: none !important; }
+            .no-print-shadow { box-shadow: none !important; border: 1px solid #ddd; }
+            body { background-color: white; }
+            .page-break { page-break-before: always; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Header / Branding -->
+    <div class="bg-white border-b-4 border-teal-600 shadow-sm">
+        <div class="max-w-4xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <h1 class="text-2xl font-bold text-teal-800">Communities' Choice Torfaen</h1>
+                <p class="text-slate-500 text-sm font-medium">Project Monitoring & Self-Reporting</p>
+            </div>
+            <div class="text-right text-xs text-slate-400">
+                <p>Torfaen Voluntary Alliance & Connecting Torfaen</p>
+                <p>Participatory Budgeting Initiative</p>
+            </div>
+        </div>
+    </div>
+
+    <form id="monitoringForm" class="max-w-4xl mx-auto px-6 py-8 space-y-8">
+        
+        <!-- INTRO -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded text-sm text-blue-800">
+            <p class="font-bold mb-1"><i class="fas fa-info-circle mr-2"></i>Welcome Back!</p>
+            <p>This form helps us capture the story of your project. We want to hear about your successes, your challenges, and how we can support you. Please complete this form to update the Communities' Choice team on your progress.</p>
+        </div>
+
+        <!-- SECTION 1: PROJECT DATA & TIMELINE GENERATOR -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold text-teal-700 mb-4 border-b pb-2"><i class="fas fa-calendar-alt mr-2"></i>Project Timeline & Schedule</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Organisation/Group Name</label>
+                    <input type="text" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-teal-500 focus:border-teal-500" placeholder="e.g. Blaenavon Blues AFC">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Project Name</label>
+                    <input type="text" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-teal-500 focus:border-teal-500" placeholder="Title of your funded project">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Actual Project Start Date</label>
+                    <p class="text-xs text-slate-500 mb-2">When did activity actually begin?</p>
+                    <input type="date" id="startDate" onchange="calculateDates()" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-teal-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Project Duration</label>
+                    <p class="text-xs text-slate-500 mb-2">Select the nearest match to your plan.</p>
+                    <select id="duration" onchange="calculateDates()" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-teal-500">
+                        <option value="0">Select duration...</option>
+                        <option value="3">3 Months (Short Term)</option>
+                        <option value="6">6 Months (Medium Term)</option>
+                        <option value="9">9 Months (Long Term)</option>
+                        <option value="12">12 Months (Full Year)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- DYNAMIC DATE OUTPUT -->
+            <div id="scheduleOutput" class="hidden mt-6 bg-teal-50 border border-teal-200 rounded-lg p-4 transition-all">
+                <h3 class="text-teal-800 font-bold text-sm mb-3"><i class="fas fa-clock mr-2"></i>Your Projected Reporting Schedule</h3>
+                <p class="text-xs text-teal-600 mb-3">Based on your start date and duration, these are your estimated update windows:</p>
+                <div id="dateList" class="space-y-2">
+                    <!-- Dates injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: THE "PULSE CHECK" -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold text-teal-700 mb-4 border-b pb-2"><i class="fas fa-heartbeat mr-2"></i>How is it going?</h2>
+            
+            <div class="mb-8">
+                <label class="block text-sm font-bold text-slate-700 mb-4">On a scale of 0 to 5, how do you feel the project is progressing?</label>
+                
+                <div class="flex justify-between text-xs text-slate-400 mb-2 px-1">
+                    <span>Terrible (0)</span>
+                    <span>Struggling (1-2)</span>
+                    <span>Steady (3)</span>
+                    <span>Great (4)</span>
+                    <span>Exceeding (5)</span>
+                </div>
+                
+                <div class="flex gap-2 justify-between items-center">
+                     <button type="button" onclick="selectRating(0)" id="rate-0" class="rating-btn flex-1 py-3 border-2 border-slate-200 rounded hover:bg-red-50 hover:border-red-300 font-bold text-slate-400 transition-colors">0 😫</button>
+                     <button type="button" onclick="selectRating(1)" id="rate-1" class="rating-btn flex-1 py-3 border-2 border-slate-200 rounded hover:bg-orange-50 hover:border-orange-300 font-bold text-slate-400 transition-colors">1 😟</button>
+                     <button type="button" onclick="selectRating(2)" id="rate-2" class="rating-btn flex-1 py-3 border-2 border-slate-200 rounded hover:bg-yellow-50 hover:border-yellow-300 font-bold text-slate-400 transition-colors">2 😐</button>
+                     <button type="button" onclick="selectRating(3)" id="rate-3" class="rating-btn flex-1 py-3 border-2 border-slate-200 rounded hover:bg-blue-50 hover:border-blue-300 font-bold text-slate-400 transition-colors">3 🙂</button>
+                     <button type="button" onclick="selectRating(4)" id="rate-4" class="rating-btn flex-1 py-3 border-2 border-slate-200 rounded hover:bg-teal-50 hover:border-teal-300 font-bold text-slate-400 transition-colors">4 😄</button>
+                     <button type="button" onclick="selectRating(5)" id="rate-5" class="rating-btn flex-1 py-3 border-2 border-slate-200 rounded hover:bg-green-50 hover:border-green-300 font-bold text-slate-400 transition-colors">5 🤩</button>
+                </div>
+                <input type="hidden" id="selectedRating" name="rating">
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Tell us the story behind that score:</label>
+                <p class="text-xs text-slate-500 mb-2">Include brief highlights, any unexpected hurdles, or great feedback you've received from the community.</p>
+                <textarea rows="4" class="w-full p-3 border border-slate-300 rounded focus:ring-2 focus:ring-teal-500" placeholder="Our project is going..."></textarea>
+            </div>
+        </div>
+
+        <!-- SECTION 3: MONITORING VISITS -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold text-teal-700 mb-4 border-b pb-2"><i class="fas fa-eye mr-2"></i>In-Person Monitoring & Visit Request</h2>
+            <div class="bg-orange-50 border-l-4 border-orange-400 p-3 mb-4 text-xs text-orange-800">
+                <strong>Mandatory Requirement:</strong> As part of your grant agreement, we love to see projects in action! Please propose dates for a member of the Communities' Choice team to connect with you.
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Preferred Visit Type:</label>
+                    <div class="flex gap-6">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" name="visitType" value="onsite" class="text-teal-600 focus:ring-teal-500">
+                            <span class="text-sm">On-Site Visit (Come to us/Project site)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" name="visitType" value="office" class="text-teal-600 focus:ring-teal-500">
+                            <span class="text-sm">Office Meeting (Visit TVA offices)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Proposed Dates & Times</label>
+                    <p class="text-xs text-slate-500 mb-2">Please suggest 2 or 3 dates/times that work for you in the next month.</p>
+                    <input type="text" class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-teal-500" placeholder="e.g. Wed 14th at 2pm OR Fri 16th at 10am">
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: SUPPORT NEEDS -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold text-teal-700 mb-4 border-b pb-2"><i class="fas fa-hands-helping mr-2"></i>Advice & Support</h2>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-bold text-slate-700 mb-2">Does your project require specific advice or support at this stage?</label>
+                <div class="flex gap-6">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="supportNeeded" value="yes" onchange="toggleSupport(true)" class="text-teal-600 focus:ring-teal-500">
+                        <span class="text-sm font-medium">Yes, please</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="supportNeeded" value="no" onchange="toggleSupport(false)" class="text-teal-600 focus:ring-teal-500">
+                        <span class="text-sm font-medium">No, we are okay for now</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="supportOptions" class="hidden pl-4 border-l-2 border-slate-200 space-y-3 mt-4">
+                <p class="text-sm text-slate-600 font-bold">What type of support?</p>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="rounded text-teal-600 focus:ring-teal-500">
+                    <span class="text-sm">Financial Reporting / Budgeting</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="rounded text-teal-600 focus:ring-teal-500">
+                    <span class="text-sm">Volunteer Recruitment & Management</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="rounded text-teal-600 focus:ring-teal-500">
+                    <span class="text-sm">Marketing & Publicity (Logos, Social Media)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="rounded text-teal-600 focus:ring-teal-500">
+                    <span class="text-sm">Future Funding / Sustainability</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="rounded text-teal-600 focus:ring-teal-500">
+                    <span class="text-sm">Safeguarding / Policy Review</span>
+                </label>
+                <div class="pt-2">
+                    <label class="block text-xs font-bold text-slate-600">Other (Please detail):</label>
+                    <input type="text" class="w-full mt-1 p-2 border border-slate-300 rounded text-sm" placeholder="Details...">
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 5: SIGN OFF -->
+        <div class="bg-slate-100 p-6 rounded-xl border border-slate-200">
+            <h2 class="text-lg font-bold text-teal-700 mb-4 border-b pb-2">Declaration & Consent</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Name of Main Contact</label>
+                    <input type="text" class="w-full p-2 border border-slate-300 rounded bg-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Person Completing Form</label>
+                    <input type="text" class="w-full p-2 border border-slate-300 rounded bg-white">
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <label class="flex items-start space-x-3">
+                    <input type="checkbox" required class="mt-1 rounded text-teal-600 focus:ring-teal-500">
+                    <span class="text-xs text-slate-600">
+                        <strong>GDPR Consent:</strong> I agree that the data provided here will be stored by Torfaen Voluntary Alliance for the purpose of monitoring the Communities' Choice grant.
+                    </span>
+                </label>
+                <label class="flex items-start space-x-3">
+                    <input type="checkbox" required class="mt-1 rounded text-teal-600 focus:ring-teal-500">
+                    <span class="text-xs text-slate-600">
+                        <strong>Terms & Conditions:</strong> I acknowledge the terms agreed to in our original Grant Acceptance Letter regarding Monitoring & Evaluation (M&E) requirements. I confirm the information provided above is accurate.
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-end gap-4 print-hide">
+            <button type="button" onclick="window.print()" class="bg-white border border-teal-600 text-teal-700 px-6 py-2 rounded-lg hover:bg-teal-50 font-medium transition-colors">
+                <i class="fas fa-print mr-2"></i>Save as PDF / Print
+            </button>
+            <button type="button" onclick="alert('In a live system, this would submit the data. For now, please Print to PDF and email to communities-choice@tvawales.org.uk')" class="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 font-medium transition-colors shadow-lg">
+                Submit Report
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-xs text-slate-400 mt-8 pb-4">
+            <p><strong>Contact the Team:</strong> Dan Watkins (dan@tvawales.org.uk) | Bailey Richardson (bailey@tvawales.org.uk)</p>
+            <p class="mt-1">Communities' Choice | Torfaen Voluntary Alliance | Connecting Torfaen</p>
+        </div>
+
+    </form>
+
+    <script>
+        // Rating Logic
+        function selectRating(score) {
+            // Reset styles
+            document.querySelectorAll('.rating-btn').forEach(btn => {
+                btn.classList.remove('bg-red-500', 'bg-orange-400', 'bg-yellow-400', 'bg-blue-500', 'bg-teal-500', 'bg-green-600', 'text-white', 'border-transparent');
+                btn.classList.add('text-slate-400', 'border-slate-200');
+            });
+
+            // Set active style based on score
+            const btn = document.getElementById(`rate-${score}`);
+            btn.classList.remove('text-slate-400', 'border-slate-200');
+            btn.classList.add('text-white', 'border-transparent');
+
+            if(score === 0) btn.classList.add('bg-red-500');
+            if(score === 1) btn.classList.add('bg-orange-400');
+            if(score === 2) btn.classList.add('bg-yellow-400');
+            if(score === 3) btn.classList.add('bg-blue-500');
+            if(score === 4) btn.classList.add('bg-teal-500');
+            if(score === 5) btn.classList.add('bg-green-600');
+
+            document.getElementById('selectedRating').value = score;
+        }
+
+        // Support Toggle Logic
+        function toggleSupport(show) {
+            const section = document.getElementById('supportOptions');
+            if(show) {
+                section.classList.remove('hidden');
+            } else {
+                section.classList.add('hidden');
+            }
+        }
+
+        // Date Calculation Logic
+        function calculateDates() {
+            const startInput = document.getElementById('startDate').value;
+            const duration = parseInt(document.getElementById('duration').value);
+            const outputDiv = document.getElementById('scheduleOutput');
+            const listDiv = document.getElementById('dateList');
+
+            if (!startInput || duration === 0) {
+                outputDiv.classList.add('hidden');
+                return;
+            }
+
+            const startDate = new Date(startInput);
+            outputDiv.classList.remove('hidden');
+            listDiv.innerHTML = ''; // Clear previous
+
+            let dates = [];
+
+            // Helper to add months to a date
+            const addMonths = (date, months) => {
+                const d = new Date(date);
+                d.setMonth(d.getMonth() + months);
+                return d;
+            };
+
+            // Format date for display
+            const formatDate = (date) => {
+                return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+            };
+
+            // Logic based on prompt
+            if (duration === 3 || duration === 6) {
+                // 3-6 months: Half way point and Towards End
+                const half = Math.ceil(duration / 2);
+                dates.push({ label: `Mid-Point Review (Month ${half})`, date: addMonths(startDate, half) });
+                dates.push({ label: `Project Completion (Month ${duration})`, date: addMonths(startDate, duration) });
+            } else if (duration === 9) {
+                // 9 months: At least 2-3 times (3, 6, 9)
+                dates.push({ label: 'Quarter 1 Update', date: addMonths(startDate, 3) });
+                dates.push({ label: 'Quarter 2 Update', date: addMonths(startDate, 6) });
+                dates.push({ label: 'Final Evaluation', date: addMonths(startDate, 9) });
+            } else if (duration === 12) {
+                // 12 months: Up to 4 times
+                dates.push({ label: 'Quarter 1 Update', date: addMonths(startDate, 3) });
+                dates.push({ label: 'Mid-Year Review', date: addMonths(startDate, 6) });
+                dates.push({ label: 'Quarter 3 Update', date: addMonths(startDate, 9) });
+                dates.push({ label: 'Final Evaluation', date: addMonths(startDate, 12) });
+            }
+
+            // Render Dates
+            dates.forEach(item => {
+                const html = `
+                    <div class="flex justify-between items-center bg-white p-2 rounded border border-teal-100">
+                        <span class="font-semibold text-teal-800 text-sm">${item.label}</span>
+                        <span class="text-sm font-mono text-slate-600">${formatDate(item.date)}</span>
+                    </div>
+                `;
+                listDiv.innerHTML += html;
+            });
+        }
+    </script>
+</body>
+</html>
